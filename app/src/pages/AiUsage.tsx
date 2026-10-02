@@ -141,8 +141,8 @@ export function AiUsage() {
         <div>
           <h1 className="page-title">IA / Azure OpenAI</h1>
           <p className="page-subtitle">
-            Custo e consumo de tokens do Azure OpenAI (Foundry Models), mês corrente — derivado do meter detalhado do
-            FOCUS export.
+            Custo e consumo de tokens do Azure OpenAI (Foundry Models), mês corrente — fonte: Base de Consumo
+            Consolidada.
           </p>
         </div>
         {data && (
@@ -277,8 +277,8 @@ export function AiUsage() {
                   </table>
                   <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 12 }}>
                     "Input (cache)" é o preço reduzido cobrado quando o prompt reaproveita conteúdo já processado
-                    recentemente (prompt caching). O tipo de token é inferido do nome do meter da Azure — pode cair
-                    em "Outro" quando o meter não segue o padrão usual (ex: embeddings). A previsão de fechamento usa
+                    recentemente (prompt caching). O tipo de token é inferido da descrição de cada item cobrado — pode
+                    cair em "Outro" quando a descrição não segue o padrão usual (ex: embeddings). A previsão de fechamento usa
                     o mesmo cálculo de run-rate (custo do mês ÷ dias já passados × dias no mês) do resto do
                     dashboard.
                   </p>
