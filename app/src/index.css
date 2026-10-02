@@ -1,0 +1,634 @@
+:root {
+  color-scheme: dark;
+
+  /* Chart chrome & ink (dark, navy-tinted) */
+  --surface-1: #0f1a24;
+  --surface-2: #13202c;
+  --page-plane: #0a1119;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --gridline: #1c2731;
+  --baseline: #2c3b47;
+  --border: rgba(255, 255, 255, 0.1);
+  --success-text: #0ca30c;
+
+  /* Secondary brand blue: vivid cyan for UI chrome (links, active nav, buttons) —
+     kept out of chart data marks because it fails the dark-mode lightness band. */
+  /* Spassu brand. #F94615 is the orange taken from spassu.com.br; it is 5.11:1 against
+     this theme's --surface-1, clearing the 4.5:1 text minimum for links, buttons and the
+     active nav item. */
+  --brand-accent: #f94615;
+  --brand-blue: #0e8bc9;
+  --brand-navy: #201547;
+
+  /* Categorical (dark steps). Slot 1 is a validated brand-blue step
+     (scripts/validate_palette.js, dataviz skill); slots 2-8 are the skill defaults. */
+  --series-1: #0e8bc9; /* brand blue */
+  --series-2: #d95926; /* orange */
+  --series-3: #199e70; /* aqua */
+  --series-4: #c98500; /* yellow */
+  --series-5: #d55181; /* magenta */
+  --series-6: #008300; /* green */
+  --series-7: #9085e9; /* violet */
+  --series-8: #e66767; /* red */
+
+  /* Status (fixed, never themed) */
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  --shadow-card-hover: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 32px -12px rgba(4, 218, 242, 0.12);
+}
+
+/* Light theme preview — validated reference steps from the dataviz skill's palette
+   (references/palette.md), not an automatic dark-mode invert. Categorical slot 1 stays
+   the reference light blue rather than the custom dark brand-blue, since the brand step
+   was only validated against the dark surface. */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --surface-1: #fcfcfb;
+  --surface-2: #ffffff;
+  --page-plane: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --gridline: #e1e0d9;
+  --baseline: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+  --success-text: #006300;
+
+  /* The brand orange (#f94615) is 3.55:1 against white — below the 4.5:1 text minimum for
+     buttons, links and the active nav item. This darker step keeps the same hue and reads
+     at 4.86:1 on the light surface. */
+  --brand-accent: #d13a10;
+
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-8: #e34948;
+
+  --shadow-card: 0 1px 2px rgba(11, 11, 11, 0.06), 0 8px 24px -12px rgba(11, 11, 11, 0.12);
+  --shadow-card-hover: 0 1px 2px rgba(11, 11, 11, 0.06), 0 16px 32px -12px rgba(249, 70, 21, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  background: var(--page-plane);
+  background-image:
+    radial-gradient(720px 480px at 8% -10%, rgba(4, 218, 242, 0.08), transparent 60%),
+    radial-gradient(640px 420px at 100% 0%, rgba(25, 79, 144, 0.22), transparent 55%);
+  background-attachment: fixed;
+}
+
+a {
+  color: var(--brand-accent);
+}
+
+button {
+  font-family: inherit;
+}
+
+.app-shell {
+  display: flex;
+  min-height: 100%;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--surface-1), var(--page-plane) 140%);
+  border-right: 1px solid var(--border);
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mobile-topbar-toggle,
+.sidebar-backdrop,
+.sidebar-close {
+  display: none;
+}
+
+.sidebar-logo {
+  padding: 10px 10px 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+
+/* The cap suits a stacked lockup, which is tall enough to read at that width. A wide
+   wordmark needs the full column to carry the same visual weight, so the limit is the
+   sidebar's own content width rather than a fixed number. */
+.sidebar-logo img {
+  display: block;
+  width: 100%;
+  max-width: 196px;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* The logo is the brand's own colour version, which reads on both surfaces, so it needs
+   no chip behind it in the light theme. A reversed (white) variant is kept alongside as
+   client-logo-reverse.svg for any surface too dark for the coloured one. */
+
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  padding: 4px 10px 22px;
+  color: var(--text-primary);
+}
+
+.sidebar-brand-mark {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--brand-accent);
+}
+
+.sidebar-nav-group {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 16px 10px 6px;
+}
+
+.sidebar-nav-group:first-of-type {
+  padding-top: 4px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13.5px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-link svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.sidebar-link:hover svg {
+  opacity: 1;
+}
+
+.sidebar-link.active {
+  background: linear-gradient(90deg, rgba(4, 218, 242, 0.16), rgba(4, 218, 242, 0.03));
+  color: var(--text-primary);
+  box-shadow: inset 2px 0 0 var(--brand-accent);
+}
+
+.sidebar-link.active svg {
+  opacity: 1;
+  color: var(--brand-accent);
+}
+
+.theme-toggle {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+:root[data-theme="light"] .theme-toggle:hover {
+  background: rgba(11, 11, 11, 0.05);
+}
+
+.sidebar-footer {
+  padding: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+
+.content-column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1;
+  padding: 28px 32px 48px;
+  max-width: 1280px;
+  width: 100%;
+}
+
+/* Below tablet width the fixed 240px sidebar would eat most of the viewport, so it
+   becomes an off-canvas drawer toggled by a top bar instead. */
+@media (max-width: 768px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .mobile-topbar-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--surface-1);
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 55;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 60;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 14px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+
+  .main {
+    padding: 16px 14px 32px;
+  }
+
+  .table {
+    min-width: 560px;
+  }
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
+}
+
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 13.5px;
+  margin: 0 0 26px;
+}
+
+.card {
+  background: linear-gradient(160deg, var(--surface-2), var(--surface-1) 70%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 14px;
+}
+
+.card-title-accent {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--brand-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 14px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.stat-tile-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+}
+
+.stat-tile-value {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-variant-numeric: proportional-nums;
+  margin: 0;
+}
+
+.stat-tile-delta {
+  font-size: 12px;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.delta-up-bad {
+  color: var(--status-critical);
+}
+
+.delta-down-good {
+  color: var(--status-good);
+}
+
+/* Executive / hero variants for presentation-style views */
+.hero-tile {
+  padding: 26px 26px 24px;
+}
+
+.hero-tile .stat-tile-value {
+  font-size: 44px;
+}
+
+.hero-tile.hero-tile-accent {
+  background: linear-gradient(160deg, rgba(4, 218, 242, 0.14), var(--surface-1) 65%);
+  border-color: rgba(4, 218, 242, 0.35);
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+@media (max-width: 900px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* A table wider than its card scrolls horizontally within the card instead of columns
+   silently running past the edge with no way to reach them — matters on every viewport,
+   not just mobile (tables with many columns can overflow at any width). */
+.card:has(.table) {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  text-align: left;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--gridline);
+}
+
+.table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--gridline);
+  font-variant-numeric: tabular-nums;
+  vertical-align: top;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Opt-in variant for a page whose table benefits from more breathing room — doesn't touch
+   the default .table used everywhere else. */
+.table-spacious {
+  font-size: 14px;
+}
+
+.table-spacious th,
+.table-spacious td {
+  padding: 14px 16px;
+}
+
+/* Azure resource type strings ("alertsmanagement/smartdetectoralertrules") have no spaces,
+   so browsers treat them as one unbreakable token — without a cap, that single column stretches
+   to fit the whole string and drags the rest of the table wide with it. */
+.table-spacious td {
+  overflow-wrap: anywhere;
+}
+
+.table-spacious td:nth-child(2) {
+  max-width: 190px;
+}
+
+/* Opt-in variant centering a StatTile's text — the shared component defaults to left-aligned
+   everywhere else, this only applies where a page wraps its kpi-grid with this class.
+   .stat-tile-label is a flex row (for its optional icon), so text-align alone doesn't center
+   it — it needs its own justify-content. */
+.kpi-grid-centered .card {
+  text-align: center;
+}
+
+.kpi-grid-centered .card .stat-tile-label {
+  justify-content: center;
+}
+
+.state-message {
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 40px 0;
+  text-align: center;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.login-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-button {
+  background: var(--brand-accent);
+  color: #0a1119;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Executive summary layout */
+.exec-hero {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 900px) {
+  .exec-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+.exec-opportunity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--gridline);
+}
+
+.exec-opportunity-row:last-child {
+  border-bottom: none;
+}
+
+.exec-opportunity-label {
+  font-size: 13.5px;
+  color: var(--text-primary);
+}
+
+.exec-opportunity-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.exec-opportunity-value {
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Print — always light-on-white regardless of the active theme (dark or the recalibrated
+   light accent would waste ink / print near-invisible), sidebar and export controls hidden,
+   content given the full page width. Elements opt out individually via .no-print. */
+@media print {
+  body {
+    background: #ffffff none;
+  }
+
+  .sidebar,
+  .no-print {
+    display: none !important;
+  }
+
+  .content-column,
+  .main {
+    max-width: none;
+    padding: 0;
+  }
+
+  .card {
+    background: #ffffff;
+    box-shadow: none;
+    border: 1px solid #d9d9d6;
+    break-inside: avoid;
+  }
+
+  * {
+    color: #0b0b0b !important;
+    border-color: #d9d9d6 !important;
+  }
+}

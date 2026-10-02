@@ -1,0 +1,39 @@
+name: Deploy demo
+
+# Builds the frontend in demo mode (VITE_DEMO=true: no login, no API, fictitious data)
+# and publishes it to the Azure Static Web App whose deployment token is stored in the
+# AZURE_STATIC_WEB_APPS_API_TOKEN secret.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      # npm install, not npm ci: the per-platform WASM fallbacks of rolldown/oxlint make a
+      # lock file generated on Windows impossible to satisfy with npm ci on Linux.
+      - name: Build demo
+        working-directory: app
+        run: |
+          npm install
+          npm run build:demo
+
+      - name: Publish to Static Web App
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: app/dist
+          skip_app_build: true
+          skip_api_build: true

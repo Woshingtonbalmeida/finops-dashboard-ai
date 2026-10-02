@@ -1,0 +1,28 @@
+{
+  "name": "finops-dashboard-api",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/src/index.js",
+  "scripts": {
+    "build": "node scripts/check-function-registry.js && tsc",
+    "watch": "tsc --watch",
+    "prestart": "npm run build",
+    "start": "func start",
+    "clean": "rimraf dist",
+    "check-registry": "node scripts/check-function-registry.js"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.5.1",
+    "@azure/identity": "^4.5.0",
+    "@azure/storage-blob": "^12.25.0",
+    "csv-parse": "^5.6.0",
+    "jsonwebtoken": "^9.0.3",
+    "jwks-rsa": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.16.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.6.3"
+  }
+}

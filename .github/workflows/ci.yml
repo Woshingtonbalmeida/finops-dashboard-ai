@@ -1,0 +1,44 @@
+name: CI
+
+# Typecheck and build both halves on every pull request, so a broken build is caught
+# before it reaches main — the deploy workflow only runs after a merge.
+
+on:
+  pull_request:
+    branches: [main]
+  # Also on push, so a commit that lands on main directly — as the first one does, before
+  # any branch protection exists — still gets a build check.
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: npm
+          cache-dependency-path: |
+            api/package-lock.json
+            app/package-lock.json
+
+      - name: API — typecheck and build
+        working-directory: api
+        run: |
+          npm ci
+          npx tsc --noEmit
+          npm run build
+
+      # npm install here for the same reason as the deploy workflow: the frontend's
+      # per-platform WASM fallbacks make a cross-platform lock file impossible to satisfy
+      # with npm ci.
+      - name: App — typecheck and build
+        working-directory: app
+        run: |
+          npm install
+          npx tsc --noEmit
+          npm run build

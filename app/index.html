@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Observabilidade — Spassu</title>
+  </head>
+  <body>
+    <script>
+      // Applied before first paint so a stored light preference doesn't flash dark on load.
+      if (localStorage.getItem("finops-theme") === "light") {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
